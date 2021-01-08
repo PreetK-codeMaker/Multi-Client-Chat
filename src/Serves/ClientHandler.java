@@ -22,9 +22,10 @@ public class ClientHandler  implements Runnable, PropertyChangeListener {
 	private Socket cl1 =null;
 	private Socket cl2 =null;
 	private ObjectOutputStream oos1 = null;
-	private ArrayList<ObjectOutputStream> oosList = new ArrayList<>();
+	private static ArrayList<ObjectOutputStream> oosList = new ArrayList<>();
 //	private ObjectOutputStream oos2 = null;
-	private ArrayList<InputListener> list = new ArrayList<>();
+	private InputListener list = null;
+//	private ArrayList<InputListener> list = new ArrayList<>();
 	private ArrayList<Socket> socList = new ArrayList<>();
 	private static int count = 0;
 	private Thread inputListner1 = null;
@@ -38,7 +39,9 @@ public class ClientHandler  implements Runnable, PropertyChangeListener {
 	public ClientHandler(Socket cl1) {
 		this.cl1 = cl1;
 		socList.add(cl1);
-		list.add(new InputListener(count, socList.get(count), this));
+//		list.add(new InputListener(count, this.cl1, this));
+		list = new InputListener(count,this.cl1, this);
+		count++;
 	}
 
 	/***
@@ -57,17 +60,21 @@ public class ClientHandler  implements Runnable, PropertyChangeListener {
 //		t1.start();
 //		Thread t2 = new Thread(listener2);
 //		t2.start();
-		for (int i = 0; i < list.size(); i++ ) {
-			Thread ti = new Thread(list.get(i));
-			if(!ti.isAlive()) {
-				ti.start();
-			}
-		}
+//		for (int i = 0; i < list.size(); i++ ) {
+//			Thread ti = new Thread(list.get(i));
+//			if(!ti.isAlive()) {
+//				ti.start();
+//			}
+//		}
+		Thread t1 = new Thread(list);
+		t1.start();
 
 		try {
 			for (int i = 0; i < socList.size(); i++) {
 				oosList.add(i, new ObjectOutputStream(socList.get(i).getOutputStream()));
+				oosList.get(i).flush();
 			}
+
 //			oos1 = new ObjectOutputStream(cl1.getOutputStream());
 //			oos1.flush();
 
@@ -112,13 +119,23 @@ public class ClientHandler  implements Runnable, PropertyChangeListener {
 		InputListener l = (InputListener) event.getSource();
 		System.out.println(l);
 		try {
-			for (int i = 0; i < list.size(); i++) {
-				if(l.getListnerNum() == list.get(i).getListnerNum() ) {
-					for (ObjectOutputStream o: oosList) {
-						o.writeObject(event.getNewValue());
-					}
+			for (int i = 0; i < oosList.size(); i++) {
+				if(l.getListnerNum() == list.getListnerNum()) {
+					oosList.get(i).writeObject(event.getNewValue());
+				} else if (l.getListnerNum() != list.getListnerNum()) {
+					oosList.get(i).writeObject(event.getNewValue());
 				}
 			}
+//			for (int i = 0; i < list.size(); i++) {
+//				System.out.println(list.get(i).getListnerNum());
+//				if(l.getListnerNum() == list.get(i).getListnerNum() ) {
+//					System.out.println(list.size());
+//					for (int j = 0; j < oosList.size(); j++) {
+//							oosList.get(j).writeObject(event.getNewValue());
+//							System.out.println(event.getNewValue());
+//					}
+//				}
+//			}
 			//This tell which way to direct the client messages.
 //			if (i.getListnerNum() == 1) {
 //

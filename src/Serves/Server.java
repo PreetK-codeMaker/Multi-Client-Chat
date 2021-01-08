@@ -35,7 +35,7 @@ public class Server {
 				sco.add(c1);
 				System.out.println("Accepted a Client");
 					ClientHandler cli = new ClientHandler(sco.get(number));
-					Thread td = new Thread(group,cli);
+					Thread td = new Thread(cli);
 					td.start();
 					++number;
 			}catch(IOException e) {
