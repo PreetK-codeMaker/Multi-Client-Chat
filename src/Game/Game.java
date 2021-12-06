@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /***
  * This class handles all the clicks being send to between instanceof of same gui classes.
- * @author 708114
+ * @author Preet
  *
  */
 public class Game implements Serializable {
